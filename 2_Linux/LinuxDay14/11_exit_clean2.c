@@ -1,7 +1,6 @@
 #include <header.h>
 
 // 线程的退出, 和资源释放的问题
-//
 void func_close(void *p){
     printf("func_close \n");
     long fd = (long) p;
@@ -19,7 +18,6 @@ void *func(void *p){
     void *addr = malloc(10);
     pthread_cleanup_push(func_free, addr);
 
-
     while(1){
         sleep(1);
     }
@@ -32,6 +30,7 @@ void *func(void *p){
 
     pthread_cleanup_pop(1);
     //close(fd);
+
     return NULL;
 }
 int main(){
