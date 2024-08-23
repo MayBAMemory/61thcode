@@ -16,7 +16,7 @@ int main(){
     // connect: 进行三次握手
     connect(socket_fd,(struct sockaddr *)&sockaddr, sizeof(sockaddr) );
     
-
+    // 走到这, 意味着三次握手结束
 
     return 0;
 }
