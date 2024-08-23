@@ -11,17 +11,22 @@ int main(){
     sockaddr.sin_family = AF_INET;
     sockaddr.sin_port = htons(atoi(port));
     sockaddr.sin_addr.s_addr = inet_addr(ip);
-    // 可能服务端已经准备好(开始listen了)
-    // 就意味着, 可以发起三次握手
-    // connect: 进行三次握手
     connect(socket_fd,(struct sockaddr *)&sockaddr, sizeof(sockaddr) );
     
-    // 走到这, 意味着三次握手结束
-    send(socket_fd, "hello", 5, 0);
+    // ------
+    while(1){
+        // 读取网络数据-> 打印
+        char buf[60] = {0};
+        recv(socket_fd, buf, sizeof(buf), 0);
+        printf("buf: %s \n", buf);
 
-    char buf[60] = {0};
-    recv(socket_fd, buf, sizeof(buf), 0);
-    printf("buf: %s \n", buf);
+        // 读取标准输入, 给对方会信息
+        bzero(buf, sizeof(buf));
+        read(STDIN_FILENO, buf, sizeof(buf));
+        send(socket_fd, buf, sizeof(buf), 0);
+    }
+
+
 
     close(socket_fd);
 

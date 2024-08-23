@@ -26,6 +26,20 @@ int main(){
     // accept: 获取全连接队列的一个完整链接(经过三次握手)
     //         创建一个专门为某个客户端服务的socket对象
     //
+    //         并且, 可以同时通过accept拿到对应客户端的ip和端口
+    printf("before accept \n");
+    int net_fd = accept(socket_fd, NULL, NULL);
+    printf("after accept \n");
+
+    char buf[60] = {0};
+    recv(net_fd, buf, sizeof(buf), 0);
+    printf("buf: %s \n", buf);
+
+    send(net_fd, "nihao", 5, 0);
+
+
+    close(net_fd);
+    close(socket_fd);
 
     return 0;
 }
