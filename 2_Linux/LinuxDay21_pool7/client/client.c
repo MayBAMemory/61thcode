@@ -30,28 +30,20 @@ int main(){
 
     int file_fd = open(file_name, O_RDWR|O_CREAT, 0600);
 
-    // 接收文件内容: 大文件, 循环接收, 循环写入磁盘文件
-    while(1){
+    // 接收文件大小
+    off_t file_size = 0;
+    recv(socket_fd, &file_size, sizeof(off_t), MSG_WAITALL);
+    printf("client: file_size: %ld \n", file_size);
 
-        int size;
-        //int ret = recv(socket_fd, &size, sizeof(size), 0);
-        int ret = recv(socket_fd, &size, sizeof(size), MSG_WAITALL);
-        if(ret == 0){
-            // 说明服务端传输完毕数据, 断开了链接
-            break;
-        }
-        //printf("size: %d \n", size);
+    // 首先在mmap之前调整文件大小, 让文件足够大
+    ftruncate(file_fd, file_size);
 
-        char buf[1000] = {0};
-        //ret = recv(socket_fd, buf, size, 0);
-        ret = recv(socket_fd, buf, size, MSG_WAITALL);
-        if(ret == 0){
-            break;
-        }
+    // 接收数据
+    void *p = mmap(NULL, file_size, PROT_READ|PROT_WRITE, MAP_SHARED, file_fd, 0);
 
-        write(file_fd, buf, size);
+    recv(socket_fd, p, file_size, MSG_WAITALL);
 
-    }
+    munmap(p, file_size);
 
     close(file_fd);
     close(socket_fd);

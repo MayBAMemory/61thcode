@@ -30,6 +30,16 @@ int main(){
 
     int file_fd = open(file_name, O_RDWR|O_CREAT, 0600);
 
+
+
+    // 接收文件大小
+    off_t file_size = 0;
+    recv(socket_fd, &file_size, sizeof(off_t), MSG_WAITALL);
+    printf("client: file_size: %ld \n", file_size);
+
+
+    int current_size = 0;
+
     // 接收文件内容: 大文件, 循环接收, 循环写入磁盘文件
     while(1){
 
@@ -50,6 +60,11 @@ int main(){
         }
 
         write(file_fd, buf, size);
+
+        current_size += size;
+
+        printf(" \r current: %.2f ", 100 * (double)current_size/file_size);
+
 
     }
 

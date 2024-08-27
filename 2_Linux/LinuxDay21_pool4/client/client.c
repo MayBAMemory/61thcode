@@ -32,6 +32,8 @@ int main(){
 
     // 接收文件内容: 大文件, 循环接收, 循环写入磁盘文件
     while(1){
+        sleep(1);
+        printf("recv once \n");
 
         int size;
         //int ret = recv(socket_fd, &size, sizeof(size), 0);

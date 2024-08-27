@@ -5,10 +5,15 @@ typedef struct train_s{
     char buf[1000];
 } train_t;
 
+void func(int num){
+    printf("num: %d \n", num);
+}
+
 // 给客户端回传文件
 // 参数: 用来和指定客户端通信的socket的文件描述符
 int sendFile(int net_fd){
 
+    signal(13, func);
 
     train_t file_name;
     bzero(&file_name, sizeof(file_name));
@@ -25,6 +30,9 @@ int sendFile(int net_fd){
     // 循环读取大文文件, 循环发送
     while(1){
 
+        sleep(1);
+        printf("send once \n");
+
         char buf[1000] = {0};
         int read_num = read(file_fd, buf, sizeof(buf));
         if(read_num == 0){
@@ -32,10 +40,19 @@ int sendFile(int net_fd){
             break;
         }
         
-        send(net_fd, &read_num, sizeof(int), 0);
-        send(net_fd, buf, read_num, 0);
+        int ret = send(net_fd, &read_num, sizeof(int), MSG_NOSIGNAL);
+        if(ret == -1){
+            // 说明对方断开链接
+            printf("对方断开链接 \n");
+            break;
+        }
+        ret = send(net_fd, buf, read_num, MSG_NOSIGNAL);
+        if(ret == -1){
+            // 说明对方断开链接
+            printf("对方断开链接 \n");
+            break;
+        }
     }
-
 
     close(file_fd);
     return 0;

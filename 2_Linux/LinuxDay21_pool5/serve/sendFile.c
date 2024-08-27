@@ -5,7 +5,6 @@ typedef struct train_s{
     char buf[1000];
 } train_t;
 
-// 给客户端回传文件
 // 参数: 用来和指定客户端通信的socket的文件描述符
 int sendFile(int net_fd){
 
@@ -22,6 +21,14 @@ int sendFile(int net_fd){
     int file_fd = open(str, O_RDONLY);
 
 
+    // 获取文件大小
+    struct stat st;
+    memset(&st, 0, sizeof(st));
+    fstat(file_fd, &st);
+    //printf("file_size: %ld \n", st.st_size);
+    // 把文件大小发送给客户端
+    send(net_fd, &st.st_size, sizeof(off_t), MSG_NOSIGNAL);
+
     // 循环读取大文文件, 循环发送
     while(1){
 
@@ -32,10 +39,19 @@ int sendFile(int net_fd){
             break;
         }
         
-        send(net_fd, &read_num, sizeof(int), 0);
-        send(net_fd, buf, read_num, 0);
+        int ret = send(net_fd, &read_num, sizeof(int), MSG_NOSIGNAL);
+        if(ret == -1){
+            // 说明对方断开链接
+            printf("对方断开链接 \n");
+            break;
+        }
+        ret = send(net_fd, buf, read_num, MSG_NOSIGNAL);
+        if(ret == -1){
+            // 说明对方断开链接
+            printf("对方断开链接 \n");
+            break;
+        }
     }
-
 
     close(file_fd);
     return 0;
